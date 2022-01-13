@@ -50,7 +50,7 @@ const { ethers } = require("ethers");
 */
 
 /// 📡 What chain are your contracts deployed to?
-const targetNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const targetNetwork = NETWORKS.rinkeby; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
 const DEBUG = true;
@@ -267,6 +267,10 @@ function App(props) {
   // ** keep track of a variable from the contract in the local React state:
   const timeLeft = useContractReader(readContracts, "Staker", "timeLeft");
   console.log("⏳ timeLeft:", timeLeft);
+
+  const withdrawTrue = useContractReader(readContracts, "Staker", "showBool")
+
+  const [ethAmnt, setEthAmnt] = useState("0.5")
 
   // ** Listen for when the contract has been 'completed'
   const complete = useContractReader(readContracts, "ExampleExternalContract", "completed");
@@ -554,15 +558,22 @@ function App(props) {
             </div>
 
             <div style={{ padding: 8 }}>
+              <input 
+                placeholder="  amount of eth to stake"
+                type = "ethAmnt"
+                onChange={e => setEthAmnt(e.target.value)}
+              />
               <Button
                 type={balanceStaked ? "success" : "primary"}
                 onClick={() => {
-                  tx(writeContracts.Staker.stake({ value: ethers.utils.parseEther("0.5") }));
+                  tx(writeContracts.Staker.stake({ value: ethers.utils.parseEther(ethAmnt) }));
                 }}
               >
-                🥩 Stake 0.5 ether!
+                🥩 Stake {ethAmnt} ether!
               </Button>
             </div>
+            
+    
 
             {/*
                 🎛 this scaffolding is full of commonly used components
@@ -577,7 +588,7 @@ function App(props) {
                 renderItem={item => {
                   return (
                     <List.Item key={item.blockNumber}>
-                      <Address value={item.args[0]} ensProvider={mainnetProvider} fontSize={16} /> =>
+                      <Address value={item.args[0]} ensProvider={mainnetProvider} fontSize={16} />
                       <Balance balance={item.args[1]} />
                     </List.Item>
                   );
